@@ -1,6 +1,10 @@
 # Introduction to Functional Programming with TDD - Part Two
 
-PART_TWO_INTRO
+*A facilitator-and-learner walkthrough for apprentice software engineers.*
+
+**Format:** 1.5 hours plus a 20-minute retro. **Language:** Elm. **Prerequisites:** [Part One](fp-tdd-workshop-part-1.md) (the timing overview and Sections 1-6 live there). No Elm knowledge is assumed.
+
+> 🎓 **Facilitator note:** Section numbers carry on from Part One, so references such as "the Section 4 bug" point back to that document. The KSB mapping and quality checklist at the end cover both parts.
 
 **Part Two - A Functional Language (1.5 hours)**
 
