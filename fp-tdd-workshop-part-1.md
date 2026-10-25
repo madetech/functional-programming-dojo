@@ -101,7 +101,7 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install pytest
 ```
 
-Create a working folder with this layout. You will add files as you go:
+Create a working folder with this layout. You can copy this from the "Part 0 - Project Template" folder. You will add files as you go:
 
 ```text
 fp-workshop/
@@ -146,7 +146,15 @@ for number in numbers:
     if number % 2 == 0:
         squares_of_evens_imperative.append(number * number)
 
-squares_of_evens_declarative = [number * number for number in numbers if number % 2 == 0]
+
+def is_even(number):
+    return number % 2 == 0
+
+
+def square(number):
+    return number * number
+
+squares_of_evens_declarative = [square(number) for number in numbers if is_even(number)]
 
 assert squares_of_evens_imperative == squares_of_evens_declarative == [4, 16, 36]
 ```
