@@ -36,6 +36,62 @@ Part One runs 2h30 and Part Two 1h30, which makes 4 hours. The retro sits on top
 
 **Learner setup (Part One):**
 
+You need Python 3.10 or newer. Check what you have first:
+
+```bash
+python3 --version
+```
+
+If that prints 3.10 or higher, skip to *Create a virtual environment* below.
+
+**Installing Python on a Mac**
+
+The `python3` that ships with macOS (via Apple's Command Line Tools) is usually 3.9, which is too old for this workshop. The simplest fix is to install a current Python with [Homebrew](https://brew.sh), the macOS package manager.
+
+1. **Install Apple's Command Line Tools** (compilers and `git` that Homebrew relies on). A dialog will pop up; click *Install* and wait for it to finish:
+
+   ```bash
+   xcode-select --install
+   ```
+
+   If it says the tools are already installed, carry on.
+
+2. **Install Homebrew** (skip if `brew --version` already works). Paste this into Terminal and follow the prompts; it will ask for your Mac password:
+
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+3. **Add Homebrew to your PATH.** On Apple Silicon Macs (M1 and later) the installer prints a "Next steps" block; run the commands it shows, which are normally:
+
+   ```bash
+   echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+   eval "$(/opt/homebrew/bin/brew shellenv)"
+   ```
+
+   Intel Macs install to `/usr/local`, which is already on the PATH, so this step is not needed there. Check it worked with `brew --version`.
+
+4. **Install Python:**
+
+   ```bash
+   brew install python@3.13
+   ```
+
+5. **Open a new Terminal window** and confirm the new version is picked up:
+
+   ```bash
+   python3 --version   # should now show 3.13.x
+   which python3       # should be under /opt/homebrew or /usr/local, not /usr/bin
+   ```
+
+   If it still shows the old version, close every Terminal window and try again, or check step 3.
+
+> 💡 **Not on a Mac?** On Windows, install Python from [python.org](https://www.python.org/downloads/) and tick *Add python.exe to PATH* in the installer. On Linux, use your distribution's package manager (for example `sudo apt install python3 python3-venv`).
+
+**Create a virtual environment**
+
+From your workshop folder:
+
 ```bash
 python3 --version          # 3.10 or newer
 python3 -m venv .venv
