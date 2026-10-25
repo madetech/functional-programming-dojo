@@ -141,10 +141,12 @@ You have used both already. Compare these two ways of getting the squares of eve
 ```python
 numbers = [1, 2, 3, 4, 5, 6]
 
-squares_of_evens_imperative = []
-for number in numbers:
-    if number % 2 == 0:
-        squares_of_evens_imperative.append(number * number)
+def squares_of_evens_imperative(numbers):
+    result = []
+    for number in numbers:
+        if is_even(number):
+            result.append(square(number))
+    return result
 
 
 def is_even(number):
@@ -154,9 +156,12 @@ def is_even(number):
 def square(number):
     return number * number
 
-squares_of_evens_declarative = [square(number) for number in numbers if is_even(number)]
+def squares_of_evens_declarative(numbers):
+    return [square(number) for number in numbers if is_even(number)]
 
-assert squares_of_evens_imperative == squares_of_evens_declarative == [4, 16, 36]
+
+def test_both_styles_give_the_same_answer():
+    assert squares_of_evens_imperative(numbers) == squares_of_evens_declarative(numbers) == [4, 16, 36]
 ```
 
 The first version says "make an empty box, loop, check, add." The second says "I want the squares of the even numbers." Same answer, different mindset.
@@ -204,13 +209,13 @@ Create `fibonacci.py`. We'll build up the file through this section.
 ### Subsection 2.2 - Version 1: imperative
 
 ```python
-FIRST_TWO_FIBONACCI_NUMBERS = (0, 1)
-
-
 def fibonacci_imperative(position):
-    previous, current = FIRST_TWO_FIBONACCI_NUMBERS
+    previous = 0
+    current = 1
     for _ in range(position):
-        previous, current = current, previous + current
+        next_number = previous + current
+        previous = current
+        current = next_number
     return previous
 ```
 
@@ -372,22 +377,93 @@ except RecursionError:
 
 ### Subsection 3.3 - Pure functions and the test pyramid
 
-The **test pyramid** is a model for how many tests of each kind to write.
+**Why this matters:** how you write code decides how easy it is to test. This subsection explains why pure functions are the easiest code of all to test, and how teams use that to build test suites that are fast and that they actually trust.
+
+**The test pyramid**
+
+There are three common kinds of automated test. The **test pyramid** is a rule of thumb for how many of each to write.
 
 ```text
-        /\          Few    End-to-end (UI to database, slow, brittle)
+        /\          Few    End-to-end
        /  \
-      /----\        Some   Integration (several parts talking, medium)
+      /----\        Some   Integration
      /      \
-    /--------\      Many   Unit tests (one small piece, fast, reliable)
+    /--------\      Many   Unit
 ```
 
-- **Unit test:** checks one small piece (usually one function) in isolation.
-- **Mocking / test doubles:** fakes (a *mock*, *stub* or *fake*) standing in for real collaborators, such as a database or email service, so the unit under test can run alone.
+| Kind | What it checks | Speed | Typical problems |
+|---|---|---|---|
+| **Unit** | One small piece, usually one function, on its own | Milliseconds | Very few. When one fails, it points straight at the function that broke |
+| **Integration** | Several parts working together, for example your code and a real database | Seconds | Needs setup: a database running, test data loaded |
+| **End-to-end** | The whole system, used the way a real user would, from the screen through to the database and back | Seconds to minutes each | **Brittle**: they fail for reasons that aren't bugs, such as a slow network, a button that moved, or test data someone changed |
 
-Impure code needs doubles, because its behaviour depends on the outside world. **Pure functions need few or none**: everything they depend on arrives as arguments, so you can just pass in real values. That is why FP pushes you towards a fat, fast base of unit tests. A common design is "**functional core, imperative shell**": pure logic in the middle (heavily unit-tested), thin impure code at the edge (a few integration tests).
+Why that shape? Lots of cheap, fast tests at the bottom catch most mistakes within seconds. A few expensive tests at the top check that the pieces join up. Turn the pyramid upside down (mostly end-to-end tests) and you get slow feedback and tests that fail randomly, until the team learns to ignore them with "it's probably just flaky".
+
+Analogy: building a car. You test each part on the bench (unit), check the engine fits the gearbox (integration), then take the finished car for a test drive (end-to-end). You wouldn't hunt for a faulty spark plug by driving round the block a hundred times.
+
+**What are test doubles?**
+
+A unit test is meant to check one piece *on its own*. But a lot of real code can't run on its own: it reads from a database, sends an email, checks the time, or calls another company's API. Using the real thing in a unit test causes trouble. It's slow, it may not be available on your laptop, it might send real emails to real customers, and some answers (like the time) change every time you ask.
+
+So we swap in a stand-in, called a **test double** after the stunt doubles in films. A stunt double looks enough like the actor for the scene, but it isn't the real person. There are a few kinds:
+
+- **Stub:** gives a fixed answer. "Whenever anyone asks the time, it's 9am."
+- **Fake:** a simple working version of the real thing, for example a plain Python list pretending to be a database.
+- **Mock:** records how it was used, so the test can check things like "was `send_email` called exactly once, with this address?"
+
+You don't need to memorise these. Many people just say "mock" for all of them.
+
+Doubles are useful, but they cost something:
+
+- **Setup.** Every test needs extra lines to build the double and plug it in, often more lines than the code being tested.
+- **Tests tied to the inside of the code.** A mock that checks "was the database called like *this*?" breaks when you change *how* the code talks to the database, even though the result is still correct.
+- **The double can be wrong.** If the fake behaves differently from the real thing, your tests pass and production fails.
+
+**Why pure functions need few or no doubles**
+
+A function needs a double when it reaches *out* to get something (the clock, a database) or *does* something to the outside world (sends an email, saves a file). These are the side effects from Section 2.3.
+
+A pure function does neither. Everything it needs arrives as arguments, and everything it produces comes back as the return value. To test it, you pass in real values and check what comes out. There's nothing to fake.
+
+An example in words: a function decides whether to say "Good morning" or "Good afternoon".
+
+- If the function **checks the clock itself**, testing the morning case means faking the clock so it says 9am. That needs a double.
+- If the **hour is passed in as an argument**, you just call it with 9 and check the answer. The rule is the same, but there's no double, because getting the hour has moved *outside* the function.
+
+That is why FP pushes you towards a wide base of the pyramid: the more of your logic lives in pure functions, the more of it you can test with fast, simple unit tests.
+
+**The common design: functional core, imperative shell**
+
+You can't make a whole program pure. At some point it has to read input, save data or show something on screen, and that's what makes it useful. The trick is to push those side effects to the edges.
+
+**Functional core, imperative shell** splits the code into two layers:
+
+- **The core** is pure functions that make the decisions and hold the rules: working out a price, scoring a game, checking a form is valid. It never touches the database, the network or the clock. You test it heavily with unit tests.
+- **The shell** is a thin outer layer that talks to the world. It fetches the data, hands it to the core, takes the answer and saves or displays it. It contains as little logic as possible, so a handful of integration tests is enough.
+
+```text
+outside world  ->  shell: fetch  ->  core: decide  ->  shell: save or show  ->  outside world
+                   (impure)          (pure)            (impure)
+```
+
+Analogy: a restaurant. The kitchen (core) turns ingredients into dishes by following recipes. Front of house (shell) takes orders, passes them to the kitchen, carries the plates out and takes payment. You can check a recipe in the kitchen without a single customer, and front-of-house checks are about whether orders get through, not whether the food tastes right.
+
+You've already seen a core with no shell: every Fibonacci function in Section 2. You'll build another in Section 5, and Section 6 shows a small core-and-shell example with a discount rule.
+
+**What you gain**
+
+| Benefit | Why |
+|---|---|
+| **Fast tests** | Pure-function tests run in milliseconds, so thousands run in seconds and you can run them after every change |
+| **Less setup** | No doubles to build, so each test is a few lines long and easy to read |
+| **Tests that survive refactoring** | They check *answers*, not *how* the code talks to other systems, so you can restructure the inside freely |
+| **Failures that point at the cause** | A failing unit test names the function and the inputs that broke it |
+| **Rules that are easy to change** | The rules the business changes most often live in one place, away from database and network code |
+| **Fewer integration tests** | The shell is thin, so there's less of it to test the slow way |
 
 > **Business value (K4):** Fast, trustworthy tests mean teams ship changes sooner and spend less time chasing bugs, and that saves real money. When you present your work, say that, not just "it's cleaner".
+
+> 🎓 **Facilitator note:** This subsection is longer than the 8 talk minutes allow if read word for word. In the room, cover the pyramid with the car analogy, the stunt-double idea, the "Good morning" example and the restaurant. Learners can read the tables afterwards. If anyone asks, the core-and-shell idea is often credited to Gary Bernhardt's 2012 talk *Boundaries*.
 
 > 💬 **Discussion (7 min):**
 > 1. Think of a test you've written or seen that used a mock. Could the logic have been a pure function instead?
@@ -874,5 +950,4 @@ The "shell" would be the few lines that load the order from a database, call `ap
 > 2. How would you introduce a new style to a team that doesn't know it? What would convince *you* if you were the sceptic?
 > 3. When is "good enough, mutable, and finished" the right answer?
 
-**End of Part One.** Take the 10-minute comfort break, then continue with [Part Two](fp-tdd-workshop-part-2.md).
 
