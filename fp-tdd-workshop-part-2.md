@@ -1,10 +1,6 @@
 # Introduction to Functional Programming with TDD - Part Two
 
-*A facilitator-and-learner walkthrough for apprentice software engineers.*
-
-**Format:** 1.5 hours plus a 20-minute retro. **Language:** Elm. **Prerequisites:** [Part One](fp-tdd-workshop-part-1.md) (the timing overview and Sections 1-6 live there). No Elm knowledge is assumed.
-
-> 🎓 **Facilitator note:** Section numbers carry on from Part One, so references such as "the Section 4 bug" point back to that document. The KSB mapping and quality checklist at the end cover both parts.
+PART_TWO_INTRO
 
 **Part Two - A Functional Language (1.5 hours)**
 
@@ -31,39 +27,6 @@ For a first taste of FP in 90 minutes, the compiler doing the policing is a huge
 > 🎓 **Facilitator note:** If your apprentices' employers use Elixir, swap in Elixir with ExUnit. The kata (Section 8) and the discussion prompts work unchanged, but budget extra setup time and test installs in advance. **Whichever you choose, test the setup on a spare machine, ideally one with your organisation's usual security restrictions, before the day.** If installs are blocked, a pre-configured GitHub Codespace or dev container is the best plan B.
 
 ### Subsection 7.2 - Setup
-
-Elm and its test runner are installed with **npm**, the package manager that comes with **Node.js**. Check whether you already have Node:
-
-```bash
-node --version
-npm --version
-```
-
-If both print a version number (Node 20 or newer is plenty), skip to the activity below.
-
-**Installing Node.js on a Mac**
-
-Use Homebrew, which you installed in Part One's *Before you start* section. If `brew --version` doesn't work, go back and follow steps 1-3 there first.
-
-1. **Install Node.js** (npm comes with it):
-
-   ```bash
-   brew install node
-   ```
-
-2. **Open a new Terminal window** and check both commands work:
-
-   ```bash
-   node --version   # should print v20 or higher
-   npm --version
-   which node       # should be under /opt/homebrew or /usr/local
-   ```
-
-> 💡 **Why Homebrew rather than the installer from nodejs.org?** The nodejs.org installer puts Node in a system folder, so `npm install --global` often fails with permission errors and people reach for `sudo`, which causes more problems later. Homebrew installs Node in a folder you own, so global installs just work.
-
-> 💡 **Not on a Mac?** On Windows, download the LTS installer from [nodejs.org](https://nodejs.org) and accept the defaults. On Linux, use [NodeSource](https://github.com/nodesource/distributions) or a version manager such as `nvm`, because many distributions' own Node packages are out of date.
-
-> 🎓 **Facilitator note:** Ask learners to install Node before the day, alongside Python. Doing it in the session uses up most of the 10 setup minutes, and it's the step most likely to be blocked on a locked-down work laptop.
 
 > 🛠️ **Activity (10 min, individually, then help a neighbour):**
 >
