@@ -278,6 +278,8 @@ Analogy: a Google Doc with version history versus a whiteboard. On the whiteboar
 
 **Recursion** is when a function solves a problem by calling *itself* on a smaller version of the problem, until it reaches one so small the answer is obvious (the **base case**). Think of Russian nesting dolls: open one, find a smaller one, repeat until you reach the solid doll in the middle.
 
+**Additional Video Resource**: https://www.youtube.com/watch?v=dDokMfPpfu4 
+
 ```python
 FIRST_RECURSIVE_POSITION = 2
 
